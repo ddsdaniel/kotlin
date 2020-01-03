@@ -91,18 +91,12 @@ class KotlinCodeBlockModificationListener(
 
                 val changedElements = changeSet.changedElements
 
-                // skip change if it contains only virtual/fake change
-                if (changedElements.isNotEmpty() &&
-                    // ignore formatting (whitespaces etc) change
-                    (isFormattingChange(changeSet) ||
-                            // ignore comment change
-                            isCommentChange(changeSet) ||
-                            changedElements.all { !it.psi.isPhysical })
-                ) return
+                // ignore formatting (whitespaces etc)
+                if (changedElements.isNotEmpty() && (isFormattingChange(changeSet) || isCommentChange(changeSet))) return
 
-                val inBlockChange = inBlockModifications(changedElements)
+                val inBlockElements = inBlockModifications(changedElements)
 
-                if (!inBlockChange) {
+                if (inBlockElements.isEmpty()) {
                     messageBusConnection.deliverImmediately()
 
                     if (ktFile.isPhysical && !isReplLine(ktFile.virtualFile)) {
@@ -116,7 +110,9 @@ class KotlinCodeBlockModificationListener(
                         }
                     }
 
-                    incOutOfBlockModificationCount(ktFile)
+                    ktFile.incOutOfBlockModificationCount()
+                } else if (ktFile.isPhysical) {
+                    inBlockElements.forEach { it.containingKtFile.addInBlockModifiedItem(it) }
                 }
             }
         })
@@ -165,37 +161,24 @@ class KotlinCodeBlockModificationListener(
             return file.getUserData(KOTLIN_CONSOLE_KEY) == true
         }
 
-        private fun incOutOfBlockModificationCount(file: KtFile) {
-            file.clearInBlockModifications()
-
-            val count = file.getUserData(FILE_OUT_OF_BLOCK_MODIFICATION_COUNT) ?: 0
-            file.putUserData(FILE_OUT_OF_BLOCK_MODIFICATION_COUNT, count + 1)
-        }
-
         private fun incFileModificationCount(file: KtFile) {
             val tracker = file.getUserData(PER_FILE_MODIFICATION_TRACKER)
                 ?: file.putUserDataIfAbsent(PER_FILE_MODIFICATION_TRACKER, SimpleModificationTracker())
             tracker.incModificationCount()
         }
 
-        private fun inBlockModifications(elements: Array<ASTNode>): Boolean {
+        private fun inBlockModifications(elements: Array<ASTNode>): List<KtElement> {
             // When a code fragment is reparsed, Intellij doesn't do an AST diff and considers the entire
             // contents to be replaced, which is represented in a POM event as an empty list of changed elements
-            if (elements.isEmpty()) return false
 
-            val inBlockElements = mutableSetOf<KtElement>()
-            for (element in elements) {
+            return elements.mapNotNull { element ->
                 // skip fake PSI elements like `IntellijIdeaRulezzz$`
                 val psi = element.psi
-                if (!psi.isPhysical) continue
+                if (!psi.isPhysical && !psi.containingFile.isPhysical) return@mapNotNull null
 
-                val modificationScope = getInsideCodeBlockModificationScope(psi) ?: return false
-
-                inBlockElements.add(modificationScope.blockDeclaration)
+                val modificationScope = getInsideCodeBlockModificationScope(psi) ?: return emptyList()
+                modificationScope.blockDeclaration
             }
-
-            inBlockElements.forEach { it.containingKtFile.addInBlockModifiedItem(it) }
-            return inBlockElements.isNotEmpty()
         }
 
         private fun isCommentChange(changeSet: TreeChangeEvent): Boolean =
@@ -204,7 +187,8 @@ class KotlinCodeBlockModificationListener(
                 changesByElement.affectedChildren.all { affectedChild ->
                     if (!(affectedChild is PsiComment || affectedChild is KDoc)) return@all false
                     val changeByChild = changesByElement.getChangeByChild(affectedChild)
-                    return@all if (changeByChild is ChangeInfoImpl) {
+
+                    if (changeByChild is ChangeInfoImpl) {
                         val oldChild = changeByChild.oldChild
                         oldChild is PsiComment || oldChild is KDoc
                     } else false
@@ -227,7 +211,7 @@ class KotlinCodeBlockModificationListener(
             // dirty scope for whitespaces and comments is the element itself
             if (element is PsiWhiteSpace || element is PsiComment || element is KDoc) return element
 
-            return getInsideCodeBlockModificationScope(element)?.blockDeclaration ?: null
+            return getInsideCodeBlockModificationScope(element)?.blockDeclaration
         }
 
         fun getInsideCodeBlockModificationScope(element: PsiElement): BlockModificationScopeElement? {
@@ -305,7 +289,7 @@ class KotlinCodeBlockModificationListener(
 
                 is KtSecondaryConstructor -> {
                     blockDeclaration
-                        ?.takeIf {
+                        .takeIf {
                             it.bodyExpression?.isAncestor(element) ?: false || it.getDelegationCallOrNull()?.isAncestor(element) ?: false
                         }
                         ?.let { ktConstructor ->
@@ -359,6 +343,12 @@ private val FILE_OUT_OF_BLOCK_MODIFICATION_COUNT = Key<Long>("FILE_OUT_OF_BLOCK_
 
 val KtFile.outOfBlockModificationCount: Long by NotNullableUserDataProperty(FILE_OUT_OF_BLOCK_MODIFICATION_COUNT, 0)
 
+private fun KtFile.incOutOfBlockModificationCount() {
+    clearInBlockModifications()
+
+    val count = getUserData(FILE_OUT_OF_BLOCK_MODIFICATION_COUNT) ?: 0
+    putUserData(FILE_OUT_OF_BLOCK_MODIFICATION_COUNT, count + 1)
+}
 
 /**
  * inBlockModifications is a collection of block elements those have in-block modifications
