@@ -7,6 +7,7 @@ package kotlin.collections
 
 private val emptyElementData = emptyArray<Any?>()
 private const val maxArraySize = Int.MAX_VALUE - 8
+private const val defaultMinCapacity = 10
 
 /**
  * Resizable-array implementation of the deque data structure.
@@ -16,6 +17,7 @@ private const val maxArraySize = Int.MAX_VALUE - 8
  * The collection provide methods for convenient access to the both ends.
  * It also implements [MutableList] interface and supports efficient get/set operations by index.
  */
+@SinceKotlin("1.3")
 @ExperimentalStdlibApi
 public class ArrayDeque<E> : AbstractMutableList<E> {
     private var head: Int = 0
@@ -57,27 +59,26 @@ public class ArrayDeque<E> : AbstractMutableList<E> {
      * Otherwise, this method takes no action and simply returns.
      */
     private fun ensureCapacity(minCapacity: Int) {
+        if (minCapacity < 0) throw IllegalStateException("Deque is too big.")    // overflow
         if (minCapacity <= elementData.size) return
         if (elementData === emptyElementData) {
-            elementData = arrayOfNulls(minCapacity.coerceAtLeast(10))
+            elementData = arrayOfNulls(minCapacity.coerceAtLeast(defaultMinCapacity))
             return
         }
 
+        val newCapacity = newCapacity(elementData.size, minCapacity)
+        copyElements(newCapacity)
+    }
+
+    // made internal for testing
+    internal fun newCapacity(oldCapacity: Int, minCapacity: Int): Int {
         // overflow-conscious
-        val oldCapacity = elementData.size
         var newCapacity = oldCapacity + (oldCapacity shr 1)
         if (newCapacity - minCapacity < 0)
             newCapacity = minCapacity
         if (newCapacity - maxArraySize > 0)
-            newCapacity = hugeCapacity(minCapacity)
-
-        copyElements(newCapacity)
-    }
-
-    private fun hugeCapacity(minCapacity: Int): Int {
-        if (minCapacity < 0)
-            throw IllegalStateException("Deque is too big.")    // overflow
-        return if (minCapacity > maxArraySize) Int.MAX_VALUE else maxArraySize
+            newCapacity = if (minCapacity > maxArraySize) Int.MAX_VALUE else maxArraySize
+        return newCapacity
     }
 
     /**
