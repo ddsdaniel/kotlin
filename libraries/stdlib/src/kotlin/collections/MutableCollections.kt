@@ -241,24 +241,32 @@ public fun <T> Iterable<T>.shuffled(random: Random): List<T> = toMutableList().a
 @kotlin.internal.InlineOnly
 public inline fun <T> MutableList<T>.remove(index: Int): T = removeAt(index)
 
+/**
+ * Removes the first element from this mutable list and returns that removed element, or throws [NoSuchElementException] if this list is empty.
+ */
 @SinceKotlin("1.3")
 @ExperimentalStdlibApi
-@kotlin.internal.InlineOnly
-public inline fun <T> MutableList<T>.removeFirst(): T = removeAt(0)
+public fun <T> MutableList<T>.removeFirst(): T = if (isEmpty()) throw NoSuchElementException("List is empty.") else removeAt(0)
 
+/**
+ * Removes the first element from this mutable list and returns that removed element, or returns `null` if this list is empty.
+ */
 @SinceKotlin("1.3")
 @ExperimentalStdlibApi
-@kotlin.internal.InlineOnly
 public fun <T> MutableList<T>.removeFirstOrNull(): T? = if (isEmpty()) null else removeAt(0)
 
+/**
+ * Removes the last element from this mutable list and returns that removed element, or throws [NoSuchElementException] if this list is empty.
+ */
 @SinceKotlin("1.3")
 @ExperimentalStdlibApi
-@kotlin.internal.InlineOnly
-public inline fun <T> MutableList<T>.removeLast(): T = removeAt(lastIndex)
+public fun <T> MutableList<T>.removeLast(): T = if (isEmpty()) throw NoSuchElementException("List is empty.") else removeAt(lastIndex)
 
+/**
+ * Removes the last element from this mutable list and returns that removed element, or returns `null` if this list is empty.
+ */
 @SinceKotlin("1.3")
 @ExperimentalStdlibApi
-@kotlin.internal.InlineOnly
 public fun <T> MutableList<T>.removeLastOrNull(): T? = if (isEmpty()) null else removeAt(lastIndex)
 
 /**

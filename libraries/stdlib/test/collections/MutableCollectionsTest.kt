@@ -46,7 +46,7 @@ class MutableCollectionTest {
         assertEquals("second", list.removeFirstOrNull())
 
         assertNull(list.removeFirstOrNull())
-        assertFailsWith<IndexOutOfBoundsException> { list.removeFirst() }
+        assertFailsWith<NoSuchElementException> { list.removeFirst() }
     }
 
     @Test fun removeLast() {
@@ -56,7 +56,7 @@ class MutableCollectionTest {
         assertEquals("first", list.removeLastOrNull())
 
         assertNull(list.removeLastOrNull())
-        assertFailsWith<IndexOutOfBoundsException> { list.removeLast() }
+        assertFailsWith<NoSuchElementException> { list.removeLast() }
     }
 
     @Test fun removeAll() {
