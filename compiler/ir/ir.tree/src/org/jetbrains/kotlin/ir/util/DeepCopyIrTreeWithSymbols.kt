@@ -590,6 +590,7 @@ open class DeepCopyIrTreeWithSymbols(
             symbol,
             expression.typeArgumentsCount,
             expression.valueArgumentsCount,
+            expression.isWithReflection,
             mapStatementOrigin(expression.origin)
         ).apply {
             copyRemappedTypeArgumentsFrom(expression)
