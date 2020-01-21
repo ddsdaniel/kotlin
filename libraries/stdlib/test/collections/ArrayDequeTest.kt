@@ -60,27 +60,18 @@ class ArrayDequeTest {
 
     @Test
     fun contains() {
-        val deque = ArrayDeque(listOf(0, 1, 2, 3, 4))
+        val originalItems = listOf(0, 1, 2, 3, 4)
+        val extraItems = listOf(-1, 5)
+        val deque = ArrayDeque(originalItems)
         // head < tail
-        assertTrue(deque.contains(0))
-        assertTrue(deque.contains(1))
-        assertTrue(deque.contains(2))
-        assertTrue(deque.contains(3))
-        assertTrue(deque.contains(4))
-        assertFalse(deque.contains(-1))
-        assertFalse(deque.contains(5))
+        originalItems.forEach { assertTrue(deque.contains(it), "Expected $it in $deque") }
+        extraItems.forEach { assertFalse(deque.contains(it), "Not expected $it in $deque") }
 
         // head > tail
         deque.addFirst(-1)
         deque.addLast(5)
 
-        assertTrue(deque.contains(0))
-        assertTrue(deque.contains(1))
-        assertTrue(deque.contains(2))
-        assertTrue(deque.contains(3))
-        assertTrue(deque.contains(4))
-        assertTrue(deque.contains(-1))
-        assertTrue(deque.contains(5))
+        (originalItems + extraItems).forEach { assertTrue(deque.contains(it), "Expected $it in $deque") }
 
         // remove, head > tail
         deque.remove(2)
@@ -311,6 +302,8 @@ class ArrayDequeTest {
         assertEquals(0, deque.removeLast())
         assertEquals(-1, deque.removeLast())
         assertEquals(-2, deque.removeLast())
+
+        assertFailsWith<NoSuchElementException> { deque.removeLast() }
     }
 
     @Test
