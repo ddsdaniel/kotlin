@@ -241,15 +241,23 @@ public fun <T> Iterable<T>.shuffled(random: Random): List<T> = toMutableList().a
 @kotlin.internal.InlineOnly
 public inline fun <T> MutableList<T>.remove(index: Int): T = removeAt(index)
 
+@SinceKotlin("1.3")
+@ExperimentalStdlibApi
 @kotlin.internal.InlineOnly
 public inline fun <T> MutableList<T>.removeFirst(): T = removeAt(0)
 
+@SinceKotlin("1.3")
+@ExperimentalStdlibApi
 @kotlin.internal.InlineOnly
 public fun <T> MutableList<T>.removeFirstOrNull(): T? = if (isEmpty()) null else removeAt(0)
 
+@SinceKotlin("1.3")
+@ExperimentalStdlibApi
 @kotlin.internal.InlineOnly
 public inline fun <T> MutableList<T>.removeLast(): T = removeAt(lastIndex)
 
+@SinceKotlin("1.3")
+@ExperimentalStdlibApi
 @kotlin.internal.InlineOnly
 public fun <T> MutableList<T>.removeLastOrNull(): T? = if (isEmpty()) null else removeAt(lastIndex)
 
