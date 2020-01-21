@@ -19,7 +19,7 @@ private const val defaultMinCapacity = 10
  */
 @SinceKotlin("1.3")
 @ExperimentalStdlibApi
-public class ArrayDeque<E> : AbstractMutableList<E> {
+public final class ArrayDeque<E> : AbstractMutableList<E> {
     private var head: Int = 0
     private var elementData: Array<Any?>
 
@@ -28,7 +28,7 @@ public class ArrayDeque<E> : AbstractMutableList<E> {
     /**
      * Constructs an empty deque with specified [initialCapacity], or throws [IllegalArgumentException] if [initialCapacity] is negative.
      */
-    constructor(initialCapacity: Int) {
+    public constructor(initialCapacity: Int) {
         elementData = when {
             initialCapacity == 0 -> emptyElementData
             initialCapacity > 0 -> arrayOfNulls(initialCapacity)
@@ -39,14 +39,14 @@ public class ArrayDeque<E> : AbstractMutableList<E> {
     /**
      * Constructs an empty deque.
      */
-    constructor() {
+    public constructor() {
         elementData = emptyElementData
     }
 
     /**
      * Constructs a deque that contains the same elements as the specified [elements] collection in the same order.
      */
-    constructor(elements: Collection<E>) {
+    public constructor(elements: Collection<E>) {
         elementData = elements.toTypedArray()
         size = elementData.size
         if (elementData.isEmpty()) elementData = emptyElementData
@@ -114,27 +114,27 @@ public class ArrayDeque<E> : AbstractMutableList<E> {
     /**
      * Returns the first element, or throws [NoSuchElementException] if this deque is empty.
      */
-    fun first(): E = if (isEmpty()) throw NoSuchElementException("ArrayDeque is empty.") else internalGet(head)
+    public fun first(): E = if (isEmpty()) throw NoSuchElementException("ArrayDeque is empty.") else internalGet(head)
 
     /**
      * Returns the first element, or `null` if this deque is empty.
      */
-    fun firstOrNull(): E? = if (isEmpty()) null else internalGet(head)
+    public fun firstOrNull(): E? = if (isEmpty()) null else internalGet(head)
 
     /**
      * Returns the last element, or throws [NoSuchElementException] if this deque is empty.
      */
-    fun last(): E = if (isEmpty()) throw NoSuchElementException("ArrayDeque is empty.") else internalGet(internalIndex(lastIndex))
+    public fun last(): E = if (isEmpty()) throw NoSuchElementException("ArrayDeque is empty.") else internalGet(internalIndex(lastIndex))
 
     /**
      * Returns the last element, or `null` if this deque is empty.
      */
-    fun lastOrNull(): E? = if (isEmpty()) null else internalGet(internalIndex(lastIndex))
+    public fun lastOrNull(): E? = if (isEmpty()) null else internalGet(internalIndex(lastIndex))
 
     /**
      * Prepends the specified [element] to this deque.
      */
-    fun addFirst(element: E) {
+    public fun addFirst(element: E) {
         ensureCapacity(size + 1)
 
         head = decremented(head)
@@ -145,7 +145,7 @@ public class ArrayDeque<E> : AbstractMutableList<E> {
     /**
      * Appends the specified [element] to this deque.
      */
-    fun addLast(element: E) {
+    public fun addLast(element: E) {
         ensureCapacity(size + 1)
 
         elementData[internalIndex(size)] = element
@@ -155,7 +155,7 @@ public class ArrayDeque<E> : AbstractMutableList<E> {
     /**
      * Removes the first element from this deque and returns that removed element, or throws [NoSuchElementException] if this deque is empty.
      */
-    fun removeFirst(): E {
+    public fun removeFirst(): E {
         if (isEmpty()) throw NoSuchElementException("ArrayDeque is empty.")
 
         val element = internalGet(head)
@@ -168,12 +168,12 @@ public class ArrayDeque<E> : AbstractMutableList<E> {
     /**
      * Removes the first element from this deque and returns that removed element, or returns `null` if this deque is empty.
      */
-    fun removeFirstOrNull(): E? = if (isEmpty()) null else removeFirst()
+    public fun removeFirstOrNull(): E? = if (isEmpty()) null else removeFirst()
 
     /**
      * Removes the last element from this deque and returns that removed element, or throws [NoSuchElementException] if this deque is empty.
      */
-    fun removeLast(): E {
+    public fun removeLast(): E {
         if (isEmpty()) throw NoSuchElementException("ArrayDeque is empty.")
 
         val internalLastIndex = internalIndex(lastIndex)
@@ -186,15 +186,15 @@ public class ArrayDeque<E> : AbstractMutableList<E> {
     /**
      * Removes the last element from this deque and returns that removed element, or returns `null` if this deque is empty.
      */
-    fun removeLastOrNull(): E? = if (isEmpty()) null else removeLast()
+    public fun removeLastOrNull(): E? = if (isEmpty()) null else removeLast()
 
     // MutableList, MutableCollection
-    override fun add(element: E): Boolean {
+    public override fun add(element: E): Boolean {
         addLast(element)
         return true
     }
 
-    override fun add(index: Int, element: E) {
+    public override fun add(index: Int, element: E) {
         AbstractList.checkPositionIndex(index, size)
 
         if (index == size) {
@@ -282,14 +282,14 @@ public class ArrayDeque<E> : AbstractMutableList<E> {
         size += elements.size
     }
 
-    override fun addAll(elements: Collection<E>): Boolean {
+    public override fun addAll(elements: Collection<E>): Boolean {
         if (elements.isEmpty()) return false
         ensureCapacity(this.size + elements.size)
         copyCollectionElements(internalIndex(size), elements)
         return true
     }
 
-    override fun addAll(index: Int, elements: Collection<E>): Boolean {
+    public override fun addAll(index: Int, elements: Collection<E>): Boolean {
         AbstractList.checkPositionIndex(index, size)
 
         if (elements.isEmpty()) {
@@ -367,13 +367,13 @@ public class ArrayDeque<E> : AbstractMutableList<E> {
         return true
     }
 
-    override fun get(index: Int): E {
+    public override fun get(index: Int): E {
         AbstractList.checkElementIndex(index, size)
 
         return internalGet(internalIndex(index))
     }
 
-    override fun set(index: Int, element: E): E {
+    public override fun set(index: Int, element: E): E {
         AbstractList.checkElementIndex(index, size)
 
         val internalIndex = internalIndex(index)
@@ -383,9 +383,9 @@ public class ArrayDeque<E> : AbstractMutableList<E> {
         return oldElement
     }
 
-    override fun contains(element: E): Boolean = indexOf(element) != -1
+    public override fun contains(element: E): Boolean = indexOf(element) != -1
 
-    override fun indexOf(element: E): Int {
+    public override fun indexOf(element: E): Int {
         val tail = internalIndex(size)
 
         if (head < tail) {
@@ -404,7 +404,7 @@ public class ArrayDeque<E> : AbstractMutableList<E> {
         return -1
     }
 
-    override fun lastIndexOf(element: E): Int {
+    public override fun lastIndexOf(element: E): Int {
         val tail = internalIndex(size)
 
         if (head < tail) {
@@ -423,14 +423,14 @@ public class ArrayDeque<E> : AbstractMutableList<E> {
         return -1
     }
 
-    override fun remove(element: E): Boolean {
+    public override fun remove(element: E): Boolean {
         val index = indexOf(element)
         if (index == -1) return false
         removeAt(index)
         return true
     }
 
-    override fun removeAt(index: Int): E {
+    public override fun removeAt(index: Int): E {
         AbstractList.checkElementIndex(index, size)
 
         if (index == lastIndex) {
@@ -473,9 +473,9 @@ public class ArrayDeque<E> : AbstractMutableList<E> {
         return element
     }
 
-    override fun removeAll(elements: Collection<E>): Boolean = filterInPlace { !elements.contains(it) }
+    public override fun removeAll(elements: Collection<E>): Boolean = filterInPlace { !elements.contains(it) }
 
-    override fun retainAll(elements: Collection<E>): Boolean = filterInPlace { elements.contains(it) }
+    public override fun retainAll(elements: Collection<E>): Boolean = filterInPlace { elements.contains(it) }
 
     private inline fun filterInPlace(predicate: (E) -> Boolean): Boolean {
         if (this.isEmpty() || elementData.isEmpty())
@@ -531,7 +531,7 @@ public class ArrayDeque<E> : AbstractMutableList<E> {
         return modified
     }
 
-    override fun clear() {
+    public override fun clear() {
         val tail = internalIndex(size)
         if (head < tail) {
             elementData.fill(null, head, tail)
