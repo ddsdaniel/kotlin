@@ -19,7 +19,7 @@ private const val defaultMinCapacity = 10
  */
 @SinceKotlin("1.3")
 @ExperimentalStdlibApi
-public final class ArrayDeque<E> : AbstractMutableList<E> {
+public class ArrayDeque<E> : AbstractMutableList<E> {
     private var head: Int = 0
     private var elementData: Array<Any?>
 
