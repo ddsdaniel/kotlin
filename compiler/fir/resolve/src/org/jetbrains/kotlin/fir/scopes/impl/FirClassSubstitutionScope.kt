@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.fir.resolve.ScopeSession
 import org.jetbrains.kotlin.fir.resolve.substitution.ChainedSubstitutor
 import org.jetbrains.kotlin.fir.resolve.substitution.ConeSubstitutor
 import org.jetbrains.kotlin.fir.resolve.substitution.substitutorByMap
+import org.jetbrains.kotlin.fir.resolve.transformers.ReturnTypeCalculator
 import org.jetbrains.kotlin.fir.resolve.transformers.ReturnTypeCalculatorWithJump
 import org.jetbrains.kotlin.fir.scopes.FirScope
 import org.jetbrains.kotlin.fir.scopes.ProcessorAction
@@ -81,7 +82,8 @@ class FirClassSubstitutionScope(
         return useSiteMemberScope.processClassifiersByName(name, processor)
     }
 
-    private val typeCalculator by lazy { ReturnTypeCalculatorWithJump(session, scopeSession) }
+    private val typeCalculator =
+        (scopeSession.returnTypeCalculator as ReturnTypeCalculator?) ?: ReturnTypeCalculatorWithJump(session, scopeSession)
 
     private fun ConeKotlinType.substitute(): ConeKotlinType? {
         return substitutor.substituteOrNull(this)
@@ -335,13 +337,21 @@ class FirClassSubstitutionScope(
     }
 }
 
-
-fun FirTypeRef.withReplacedConeType(newType: ConeKotlinType?): FirResolvedTypeRef {
-    require(this is FirResolvedTypeRef)
+fun FirTypeRef.withReplacedConeType(newType: ConeKotlinType?): FirTypeRef {
     if (newType == null) return this
 
-    return FirResolvedTypeRefImpl(source, newType).apply {
-        annotations += this@withReplacedConeType.annotations
-    }
+    return withReplacedNotNullConeType(newType)
+}
 
+private fun FirTypeRef.withReplacedNotNullConeType(newType: ConeKotlinType): FirResolvedTypeRefImpl {
+    return FirResolvedTypeRefImpl(source, newType).apply {
+        annotations += this.annotations
+    }
+}
+
+
+fun FirResolvedTypeRef.withReplacedConeType(newType: ConeKotlinType?): FirResolvedTypeRef {
+    if (newType == null) return this
+
+    return withReplacedNotNullConeType(newType)
 }
