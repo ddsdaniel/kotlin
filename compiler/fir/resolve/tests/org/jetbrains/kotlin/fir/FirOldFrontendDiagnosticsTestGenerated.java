@@ -15331,11 +15331,6 @@ public class FirOldFrontendDiagnosticsTestGenerated extends AbstractFirOldFronte
             runTest("compiler/testData/diagnostics/tests/operatorRem/doNotResolveToInapplicableRem.kt");
         }
 
-        @TestMetadata("errorOnExplicitModCall.kt")
-        public void testErrorOnExplicitModCall() throws Exception {
-            runTest("compiler/testData/diagnostics/tests/operatorRem/errorOnExplicitModCall.kt");
-        }
-
         @TestMetadata("forbiddenModOperatorConvention.kt")
         public void testForbiddenModOperatorConvention() throws Exception {
             runTest("compiler/testData/diagnostics/tests/operatorRem/forbiddenModOperatorConvention.kt");
@@ -15429,16 +15424,6 @@ public class FirOldFrontendDiagnosticsTestGenerated extends AbstractFirOldFronte
         @TestMetadata("resolveToModWhenNoOperatorRemFeature.kt")
         public void testResolveToModWhenNoOperatorRemFeature() throws Exception {
             runTest("compiler/testData/diagnostics/tests/operatorRem/resolveToModWhenNoOperatorRemFeature.kt");
-        }
-
-        @TestMetadata("warningOnExplicitModCall1_1.kt")
-        public void testWarningOnExplicitModCall1_1() throws Exception {
-            runTest("compiler/testData/diagnostics/tests/operatorRem/warningOnExplicitModCall1_1.kt");
-        }
-
-        @TestMetadata("warningOnExplicitModCall1_2.kt")
-        public void testWarningOnExplicitModCall1_2() throws Exception {
-            runTest("compiler/testData/diagnostics/tests/operatorRem/warningOnExplicitModCall1_2.kt");
         }
     }
 
